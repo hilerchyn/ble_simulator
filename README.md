@@ -17,3 +17,8 @@ cmake -DPICO_BOARD=pico2_w ..
 make
 ```
 
+## 串口输出
+
+```shell
+minicom -b 115200 -o -D /dev/tty.usbmodem1101
+```

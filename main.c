@@ -287,7 +287,7 @@ static void heartbeat_handler(struct btstack_timer_source *ts) {
 /////////////////////////////////////////////////////////////////
 
 #define UDP_PORT 8080
-#define BEACON_MSG_LEN_MAX 127
+#define BEACON_MSG_LEN_MAX 27
 #define BEACON_TARGET "47.115.207.102"
 #define BEACON_INTERVAL_MS 1000
 
@@ -305,11 +305,10 @@ void run_udp_beacon() {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
     sleep_ms(1000);
 
-    struct pbuf *p =
-        pbuf_alloc(PBUF_TRANSPORT, BEACON_MSG_LEN_MAX + 1, PBUF_RAM);
+    struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, BEACON_MSG_LEN_MAX + 1, PBUF_RAM);
     char *req = (char *)p->payload;
     memset(req, 0, BEACON_MSG_LEN_MAX + 1);
-    snprintf(req, BEACON_MSG_LEN_MAX, "%d\n", counter);
+    snprintf(req, BEACON_MSG_LEN_MAX, "from ble_simulator: %d", counter);
     err_t er = udp_sendto(pcb, p, &addr, UDP_PORT);
     pbuf_free(p);
     if (er != ERR_OK) {

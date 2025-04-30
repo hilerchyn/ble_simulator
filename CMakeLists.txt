@@ -1,4 +1,4 @@
-set(PROJECT hello_usb_cpp)
+set(PROJECT ble_simulator)
 
 set(PICO_CYW43_SUPPORTED 1)
 set(PICO_BTSTACK_SUPPORTED 1)

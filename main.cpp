@@ -3,6 +3,6 @@
 using namespace std;
 
 int main() {
-	    cout << "hello_usb_cpp\n" << endl;
+    cout << "hello_usb_cpp\n" << endl;
 }
 

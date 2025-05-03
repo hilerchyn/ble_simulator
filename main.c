@@ -16,6 +16,15 @@
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 
+#include "hardware/uart.h"
+
+// UART
+#define UART_ID uart1
+#define BAUD_RATE 115200
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
+
+
 /**
  * blue tooth
  */
@@ -344,43 +353,67 @@ int main() {
     return 1;
   }
 
+  // uart
+  uart_init(UART_ID, BAUD_RATE);
+  //gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+  //gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+  //uart_set_hw_flow(UART_ID, false, false);
+  //uart_puts(UART_ID, "Debug: Hello, Pico 2 W!\n");
+  printf("Debug: 1\n");
+
   // bluetooth
   // bluetooth
 
   l2cap_init();
+  printf("Debug: 2\n");
   sm_init();
+  printf("Debug: 3\n");
   sm_set_io_capabilities(IO_CAPABILITY_NO_INPUT_NO_OUTPUT);
+  printf("Debug: 4\n");
 
   // setup empty ATT server - only needed if LE Peripheral does ATT queries on
   // its own, e.g. Android and iOS
   att_server_init(NULL, NULL, NULL);
+  printf("Debug: 5\n");
 
   gatt_client_init();
+  printf("Debug: 6\n");
 
   hci_event_callback_registration.callback = &hci_event_handler;
+  printf("Debug: 7\n");
   hci_add_event_handler(&hci_event_callback_registration);
+  printf("Debug: 8\n");
 
   // set one-shot btstack timer
   heartbeat.process = &heartbeat_handler;
+  printf("Debug: 9\n");
   btstack_run_loop_set_timer(&heartbeat, LED_SLOW_FLASH_DELAY_MS);
+  printf("Debug: 10\n");
   btstack_run_loop_add_timer(&heartbeat);
+  printf("Debug: 11\n");
 
   // turn on!
   hci_power_control(HCI_POWER_ON);
+  printf("Debug: 12\n");
 
-  btstack_run_loop_execute();
+  //btstack_run_loop_execute();
+  printf("Debug: 13\n");
   // bluetooth end
   // bluetooth end
 
   cyw43_arch_enable_sta_mode();
 
   printf("Connecting to Wi-Fi...\n");
-  if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD,
-                                         CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-    printf("failed to connect.\n");
-    return 1;
-  } else {
-    printf("Connected.\n");
+  while (true) {
+    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD,
+                                           CYW43_AUTH_WPA2_AES_PSK, 30000)) {
+      printf("failed to connect.\n");
+      sleep_ms(2000);
+      //return 1;
+    } else {
+      printf("Connected.\n");
+      break;
+    }
   }
   run_udp_beacon();
   cyw43_arch_deinit();

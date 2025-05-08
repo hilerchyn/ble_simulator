@@ -1,8 +1,10 @@
 set(PROJECT ble_simulator)
 
 set(PICO_BOARD pico2_w)
-set(WIFI_SSID "MyHome")
-set(WIFI_PASSWORD "abcd.5678")
+# set(WIFI_SSID "MyHome")
+# set(WIFI_PASSWORD "abcd.5678")
+set(WIFI_SSID "GTE Employee")
+set(WIFI_PASSWORD "gteGTE12344567")
 set(PICO_CYW43_SUPPORTED 1)
 set(PICO_BTSTACK_SUPPORTED 1)
 
@@ -17,6 +19,7 @@ pico_sdk_init()
 add_executable(${PROJECT} 
 	#main.cpp
 	main.c
+        Pico_UPS.cpp
 )
 
 target_compile_definitions(${PROJECT} PRIVATE
@@ -32,6 +35,7 @@ target_link_libraries(${PROJECT}
 	pico_btstack_cyw43
 	pico_cyw43_arch_none
 	hardware_adc
+        hardware_i2c
 )
 
 target_include_directories(${PROJECT} PRIVATE

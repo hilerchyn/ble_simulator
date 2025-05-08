@@ -18,6 +18,8 @@
 
 #include "hardware/uart.h"
 
+#include "Pico_UPS.h"
+
 // UART
 #define UART_ID uart1
 #define BAUD_RATE 115200
@@ -296,7 +298,7 @@ static void heartbeat_handler(struct btstack_timer_source *ts) {
 /////////////////////////////////////////////////////////////////
 
 #define UDP_PORT 8080
-#define BEACON_MSG_LEN_MAX 27
+#define BEACON_MSG_LEN_MAX 128
 #define BEACON_TARGET "47.115.207.102"
 #define BEACON_INTERVAL_MS 1000
 
@@ -306,6 +308,11 @@ void run_udp_beacon() {
   ip_addr_t addr;
   ipaddr_aton(BEACON_TARGET, &addr);
 
+
+  // 电池
+  INA219Handle ina = INA219_create(0x43);
+  INA219_begin(ina);
+
   int counter = 0;
   while (true) {
 
@@ -314,10 +321,14 @@ void run_udp_beacon() {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 0);
     sleep_ms(1000);
 
+    // fetch the battary's voltage
+    float voltage = INA219_getBusVoltage_V(ina);
+    printf("Bus Voltage: %f V\n", voltage);
+
     struct pbuf *p = pbuf_alloc(PBUF_TRANSPORT, BEACON_MSG_LEN_MAX + 1, PBUF_RAM);
     char *req = (char *)p->payload;
     memset(req, 0, BEACON_MSG_LEN_MAX + 1);
-    snprintf(req, BEACON_MSG_LEN_MAX, "from ble_simulator: %d", counter);
+    snprintf(req, BEACON_MSG_LEN_MAX, "from ble_simulator: counter: %d voltage: %f", counter, voltage);
     err_t er = udp_sendto(pcb, p, &addr, UDP_PORT);
     pbuf_free(p);
     if (er != ERR_OK) {
@@ -342,7 +353,10 @@ void run_udp_beacon() {
     // some (blocking) work you might be doing.
     sleep_ms(BEACON_INTERVAL_MS);
 #endif
+
   }
+
+  INA219_destroy(ina);
 }
 
 int main() {
